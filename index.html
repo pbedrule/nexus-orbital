@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS ORBITAL — Private Orbital Experiences</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       CSS VARIABLES & RESET
+       ═══════════════════════════════════════════ */
+    :root {
+      --black: #050507;
+      --deep: #0a0a10;
+      --surface: #111118;
+      --surface-light: #1a1a24;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.12);
+      --gold: #c9a84c;
+      --gold-light: #e4c76b;
+      --gold-dim: rgba(201, 168, 76, 0.15);
+      --gold-glow: rgba(201, 168, 76, 0.3);
+      --blue: #4a7cff;
+      --blue-glow: rgba(74, 124, 255, 0.2);
+      --violet: #8b5cf6;
+      --violet-glow: rgba(139, 92, 246, 0.15);
+      --white: #f0ece4;
+      --white-dim: rgba(240, 236, 228, 0.6);
+      --white-muted: rgba(240, 236, 228, 0.35);
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-dim) transparent;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ═══════════════════════════════════════════
+       GRAIN OVERLAY
+       ═══════════════════════════════════════════ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 256px;
+    }
+
+    /* ═══════════════════════════════════════════
+       CUSTOM CURSOR
+       ═══════════════════════════════════════════ */
+    .cursor-dot {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      mix-blend-mode: difference;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+      opacity: 0.5;
+    }
+
+    .cursor-ring.hovering {
+      width: 60px;
+      height: 60px;
+      border-color: var(--gold-light);
+      opacity: 0.8;
+    }
+
+    /* ═══════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(5, 5, 7, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 1rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .nav-logo span {
+      color: var(--white);
+      font-weight: 400;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white-muted);
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.7rem 1.8rem;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-cta:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    /* ═══════════════════════════════════════════
+       STARFIELD CANVAS
+       ═══════════════════════════════════════════ */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO SECTION
+       ═══════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .hero-orbital-ring {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border: 1px solid rgba(201, 168, 76, 0.08);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbit-spin 60s linear infinite;
+    }
+
+    .hero-orbital-ring::before {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 20px var(--gold-glow), 0 0 40px var(--gold-dim);
+    }
+
+    .hero-orbital-ring-2 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border: 1px solid rgba(74, 124, 255, 0.06);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(60deg);
+      animation: orbit-spin 45s linear infinite reverse;
+    }
+
+    .hero-orbital-ring-2::before {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--blue);
+      border-radius: 50%;
+      top: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 15px var(--blue-glow);
+    }
+
+    @keyframes orbit-spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .hero-badge {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--gold-dim);
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.3s forwards;
+      position: relative;
+    }
+
+    .hero-badge::before,
+    .hero-badge::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 1px;
+      background: var(--gold-dim);
+      top: 50%;
+    }
+
+    .hero-badge::before { right: 100%; margin-right: 12px; }
+    .hero-badge::after { left: 100%; margin-left: 12px; }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(3.5rem, 10vw, 9rem);
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.6s forwards;
+    }
+
+    .hero h1 .line-1 {
+      display: block;
+      background: linear-gradient(135deg, var(--white) 0%, rgba(240, 236, 228, 0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero h1 .line-2 {
+      display: block;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-style: italic;
+    }
+
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: var(--white-dim);
+      max-width: 500px;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.9s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      opacity: 0;
+      animation: fadeInUp 1s ease 1.2s forwards;
+    }
+
+    .btn-primary {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+
+    .btn-primary:hover::before { transform: translateX(100%); }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 30px var(--gold-dim), 0 0 60px rgba(201, 168, 76, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      background: transparent;
+      color: var(--white-dim);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-ghost:hover {
+      color: var(--white);
+      border-color: var(--border-hover);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 1.5s forwards;
+    }
+
+    .hero-scroll span {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--white-muted);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scroll-pulse 2s ease infinite;
+    }
+
+    @keyframes scroll-pulse {
+      0%, 100% { opacity: 1; transform: scaleY(1); }
+      50% { opacity: 0.3; transform: scaleY(0.5); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════════
+       STATS BAR
+       ═══════════════════════════════════════════ */
+    .stats-bar {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 16, 0.8);
+      backdrop-filter: blur(20px);
+    }
+
+    .stat {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 2.5rem;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--white-muted);
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTIONS SHARED
+       ═══════════════════════════════════════════ */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-padding {
+      padding: 8rem 3rem;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 30px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-desc {
+      font-size: 1rem;
+      color: var(--white-dim);
+      max-width: 550px;
+      line-height: 1.8;
+    }
+
+    /* Reveal animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ═══════════════════════════════════════════
+       MISSION SECTION
+       ═══════════════════════════════════════════ */
+    .mission {
+      background: var(--deep);
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-top: 4rem;
+    }
+
+    .mission-visual {
+      position: relative;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mission-planet {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #2a2040, #0d0d18 70%);
+      box-shadow:
+        inset -30px -30px 60px rgba(0, 0, 0, 0.5),
+        0 0 80px var(--violet-glow),
+        0 0 120px rgba(74, 124, 255, 0.08);
+      position: relative;
+      animation: planet-float 8s ease-in-out infinite;
+    }
+
+    .mission-planet::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border: 1px solid rgba(139, 92, 246, 0.1);
+      border-radius: 50%;
+      animation: orbit-spin 20s linear infinite;
+    }
+
+    .mission-planet::after {
+      content: '';
+      position: absolute;
+      width: 120%;
+      height: 30px;
+      top: 50%;
+      left: -10%;
+      transform: translateY(-50%) rotateX(75deg);
+      border: 1px solid rgba(201, 168, 76, 0.15);
+      border-radius: 50%;
+    }
+
+    @keyframes planet-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .mission-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .mission-card {
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mission-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 0;
+      background: var(--gold);
+      transition: height 0.4s ease;
+    }
+
+    .mission-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-hover);
+      transform: translateX(8px);
+    }
+
+    .mission-card:hover::before { height: 100%; }
+
+    .mission-card-number {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      margin-bottom: 0.8rem;
+    }
+
+    .mission-card h3 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .mission-card p {
+      font-size: 0.85rem;
+      color: var(--white-muted);
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════════
+       DESTINATIONS SECTION
+       ═══════════════════════════════════════════ */
+    .destinations {
+      background: var(--black);
+    }
+
+    .destinations-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4rem;
+    }
+
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .dest-card {
+      position: relative;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      group: true;
+    }
+
+    .dest-card-bg {
+      position: absolute;
+      inset: 0;
+      transition: transform 0.6s ease;
+    }
+
+    .dest-card:nth-child(1) .dest-card-bg {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    }
+
+    .dest-card:nth-child(2) .dest-card-bg {
+      background: linear-gradient(135deg, #0c1222 0%, #1a3a5c 50%, #0c1222 100%);
+    }
+
+    .dest-card:nth-child(3) .dest-card-bg {
+      background: linear-gradient(135deg, #1a0a2e 0%, #3d1d6a 50%, #1a0a2e 100%);
+    }
+
+    .dest-card:hover .dest-card-bg { transform: scale(1.05); }
+
+    .dest-card-content {
+      position: absolute;
+      inset: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: linear-gradient(to top, rgba(5, 5, 7, 0.9) 0%, transparent 60%);
+      z-index: 1;
+    }
+
+    .dest-card-orbit {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .dest-card h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .dest-card p {
+      font-size: 0.8rem;
+      color: var(--white-muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .dest-card-meta {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .dest-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .dest-meta-value {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+    }
+
+    .dest-meta-label {
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white-muted);
+    }
+
+    .dest-card-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.3;
+      z-index: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .dest-card:nth-child(1) .dest-card-glow { background: var(--violet); }
+    .dest-card:nth-child(2) .dest-card-glow { background: var(--blue); }
+    .dest-card:nth-child(3) .dest-card-glow { background: var(--gold); }
+
+    .dest-card:hover .dest-card-glow { opacity: 0.5; }
+
+    /* ═══════════════════════════════════════════
+       FLEET SECTION
+       ═══════════════════════════════════════════ */
+    .fleet {
+      background: var(--deep);
+      overflow: hidden;
+    }
+
+    .fleet-showcase {
+      margin-top: 4rem;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .fleet-visual {
+      position: relative;
+      padding: 3rem;
+    }
+
+    .fleet-ship {
+      width: 100%;
+      aspect-ratio: 16/10;
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-light) 100%);
+      border: 1px solid var(--border);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .fleet-ship::before {
+      content: '';
+      position: absolute;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(ellipse, var(--gold-dim) 0%, transparent 70%);
+      filter: blur(40px);
+    }
+
+    .fleet-ship-wireframe {
+      position: relative;
+      width: 70%;
+      height: 60%;
+    }
+
+    .ship-line {
+      position: absolute;
+      background: var(--gold);
+      opacity: 0.4;
+    }
+
+    .ship-line-h1 { width: 100%; height: 1px; top: 50%; left: 0; }
+    .ship-line-h2 { width: 80%; height: 1px; top: 30%; left: 10%; }
+    .ship-line-h3 { width: 80%; height: 1px; top: 70%; left: 10%; }
+    .ship-line-v1 { width: 1px; height: 100%; top: 0; left: 50%; }
+    .ship-line-v2 { width: 1px; height: 60%; top: 20%; left: 25%; }
+    .ship-line-v3 { width: 1px; height: 60%; top: 20%; left: 75%; }
+
+    .ship-line-d1 {
+      width: 60%;
+      height: 1px;
+      top: 20%;
+      left: 20%;
+      transform: rotate(20deg);
+      transform-origin: left center;
+    }
+
+    .ship-line-d2 {
+      width: 60%;
+      height: 1px;
+      top: 20%;
+      right: 20%;
+      transform: rotate(-20deg);
+      transform-origin: right center;
+    }
+
+    .ship-node {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .ship-node-1 { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; }
+    .ship-node-2 { top: 30%; left: 25%; transform: translate(-50%, -50%); }
+    .ship-node-3 { top: 30%; left: 75%; transform: translate(-50%, -50%); }
+    .ship-node-4 { top: 70%; left: 25%; transform: translate(-50%, -50%); }
+    .ship-node-5 { top: 70%; left: 75%; transform: translate(-50%, -50%); }
+
+    .fleet-scan-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-glow), transparent);
+      top: 0;
+      animation: scan 4s ease-in-out infinite;
+    }
+
+    @keyframes scan {
+      0%, 100% { top: 0; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .fleet-specs {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .fleet-spec {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .fleet-spec:last-child { border-bottom: none; }
+
+    .fleet-spec-icon {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--gold-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--gold);
+    }
+
+    .fleet-spec h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .fleet-spec p {
+      font-size: 0.85rem;
+      color: var(--white-muted);
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════
+       EXPERIENCE TIMELINE
+       ═══════════════════════════════════════════ */
+    .experience {
+      background: var(--black);
+    }
+
+    .timeline {
+      margin-top: 4rem;
+      position: relative;
+      padding-left: 3rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--gold), var(--gold-dim), transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 2rem 0 3rem 2rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -3rem;
+      top: 2.5rem;
+      width: 7px;
+      height: 7px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      background: var(--black);
+      transform: translateX(-3px);
+    }
+
+    .timeline-phase {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: var(--white-dim);
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    /* ═══════════════════════════════════════════
+       TESTIMONIALS
+       ═══════════════════════════════════════════ */
+    .testimonials {
+      background: var(--deep);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .testimonial {
+      padding: 2.5rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      transition: all 0.4s ease;
+      position: relative;
+    }
+
+    .testimonial:hover {
+      border-color: var(--gold-dim);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .testimonial-stars {
+      color: var(--gold);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-quote {
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--white-dim);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .testimonial-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-dim), var(--violet-glow));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--gold);
+    }
+
+    .testimonial-name {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .testimonial-role {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white-muted);
+    }
+
+    /* ═══════════════════════════════════════════
+       CTA SECTION
+       ═══════════════════════════════════════════ */
+    .cta {
+      background: var(--black);
+      text-align: center;
+      padding: 10rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--gold-dim) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(80px);
+      opacity: 0.3;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta h2 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta h2 span {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cta p {
+      font-size: 1.1rem;
+      color: var(--white-dim);
+      max-width: 500px;
+      margin: 0 auto 3rem;
+    }
+
+    .cta-form {
+      display: flex;
+      gap: 0;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .cta-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-right: none;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .cta-input::placeholder {
+      color: var(--white-muted);
+    }
+
+    .cta-input:focus {
+      border-color: var(--gold-dim);
+    }
+
+    .cta-submit {
+      padding: 1rem 2rem;
+      background: var(--gold);
+      border: 1px solid var(--gold);
+      color: var(--black);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .cta-submit:hover {
+      background: var(--gold-light);
+      box-shadow: 0 0 30px var(--gold-dim);
+    }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════ */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      background: var(--deep);
+      padding: 4rem 3rem 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      font-size: 0.85rem;
+      color: var(--white-muted);
+      line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .footer-col a {
+      font-size: 0.85rem;
+      color: var(--white-muted);
+      transition: color 0.3s ease;
+    }
+
+    .footer-col a:hover { color: var(--gold); }
+
+    .footer-bottom {
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--white-muted);
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-socials a {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--white-muted);
+      transition: all 0.3s ease;
+    }
+
+    .footer-socials a:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .mission-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .destinations-grid { grid-template-columns: 1fr 1fr; }
+      .fleet-showcase { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .section-padding { padding: 5rem 1.5rem; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .destinations-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .hero-actions { flex-direction: column; }
+      .hero-orbital-ring { width: 400px; height: 400px; }
+      .hero-orbital-ring-2 { width: 300px; height: 300px; }
+      .cta-form { flex-direction: column; }
+      .cta-input { border-right: 1px solid var(--border); border-bottom: none; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 1rem; }
+      .cursor-dot, .cursor-ring { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 2.8rem; }
+      .stat-number { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Starfield -->
+  <canvas id="starfield"></canvas>
+
+  <!-- Navigation -->
+  <nav id="mainNav">
+    <div class="nav-logo">NEXUS <span>ORBITAL</span></div>
+    <ul class="nav-links">
+      <li><a href="#mission">Mission</a></li>
+      <li><a href="#destinations">Destinations</a></li>
+      <li><a href="#fleet">Fleet</a></li>
+      <li><a href="#experience">Experience</a></li>
+    </ul>
+    <button class="nav-cta">Reserve Seat</button>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-orbital-ring"></div>
+    <div class="hero-orbital-ring-2"></div>
+    <div class="hero-badge">Launching 2027 — Limited Seats</div>
+    <h1>
+      <span class="line-1">Beyond</span>
+      <span class="line-2">Atmosphere</span>
+    </h1>
+    <p class="hero-sub">Private orbital experiences for those who seek the extraordinary. The final frontier, reimagined as the ultimate luxury.</p>
+    <div class="hero-actions">
+      <button class="btn-primary">Book Your Journey</button>
+      <button class="btn-ghost">Watch Film</button>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat reveal">
+      <div class="stat-number" data-target="47">0</div>
+      <div class="stat-label">Successful Missions</div>
+    </div>
+    <div class="stat reveal reveal-delay-1">
+      <div class="stat-number" data-target="12">0</div>
+      <div class="stat-label">Orbital Destinations</div>
+    </div>
+    <div class="stat reveal reveal-delay-2">
+      <div class="stat-number">99.97<span style="font-size:1.2rem">%</span></div>
+      <div class="stat-label">Safety Record</div>
+    </div>
+    <div class="stat reveal reveal-delay-3">
+      <div class="stat-number" data-target="384">0</div>
+      <div class="stat-label">Travelers to Date</div>
+    </div>
+  </div>
+
+  <!-- Mission -->
+  <section class="mission section-padding" id="mission">
+    <div class="section-label reveal">01 — Our Mission</div>
+    <div class="section-title reveal reveal-delay-1">Redefining what it means<br>to explore.</div>
+    <p class="section-desc reveal reveal-delay-2">We don't just send you to space. We orchestrate a transformative journey that reshapes your understanding of home, humanity, and the infinite.</p>
+
+    <div class="mission-grid">
+      <div class="mission-visual reveal">
+        <div class="mission-planet"></div>
+      </div>
+      <div class="mission-cards">
+        <div class="mission-card reveal reveal-delay-1">
+          <div class="mission-card-number">01</div>
+          <h3>Zero-Gravity Luxury</h3>
+          <p>Custom-designed cabins with panoramic viewports, crafted by world-leading architects and aerospace engineers in tandem.</p>
+        </div>
+        <div class="mission-card reveal reveal-delay-2">
+          <div class="mission-card-number">02</div>
+          <h3>Scientific Discovery</h3>
+          <p>Each voyage contributes to cutting-edge research. Passengers participate in microgravity experiments alongside leading scientists.</p>
+        </div>
+        <div class="mission-card reveal reveal-delay-3">
+          <div class="mission-card-number">03</div>
+          <h3>The Overview Effect</h3>
+          <p>A cognitive shift reported by astronauts — seeing Earth from orbit fundamentally changes your perspective on life and our shared humanity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Destinations -->
+  <section class="destinations section-padding" id="destinations">
+    <div class="destinations-header">
+      <div>
+        <div class="section-label reveal">02 — Destinations</div>
+        <div class="section-title reveal reveal-delay-1">Choose your<br>orbital path.</div>
+      </div>
+      <p class="section-desc reveal reveal-delay-2" style="text-align:right">Three meticulously designed orbital experiences, each offering a unique perspective of our planet and the cosmos.</p>
+    </div>
+
+    <div class="destinations-grid">
+      <div class="dest-card reveal">
+        <div class="dest-card-bg"></div>
+        <div class="dest-card-glow"></div>
+        <div class="dest-card-content">
+          <div class="dest-card-orbit">Low Earth Orbit — 408km</div>
+          <h3>Aurora Circuit</h3>
+          <p>Witness the Northern Lights from above. A 3-day orbital voyage tracing the auroral oval at the edge of the magnetosphere.</p>
+          <div class="dest-card-meta">
+            <div class="dest-meta-item">
+              <span class="dest-meta-value">3 Days</span>
+              <span class="dest-meta-label">Duration</span>
+            </div>
+            <div class="dest-meta-item">
+              <span class="dest-meta-value">$2.4M</span>
+              <span class="dest-meta-label">From</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dest-card reveal reveal-delay-2">
+        <div class="dest-card-bg"></div>
+        <div class="dest-card-glow"></div>
+        <div class="dest-card-content">
+          <div class="dest-card-orbit">Medium Earth Orbit — 2,000km</div>
+          <h3>Meridian Ascent</h3>
+          <p>Rise beyond the Van Allen belts for an unobstructed view of Earth's full disk. 5 days of unparalleled cosmic solitude.</p>
+          <div class="dest-card-meta">
+            <div class="dest-meta-item">
+              <span class="dest-meta-value">5 Days</span>
+              <span class="dest-meta-label">Duration</span>
+            </div>
+            <div class="dest-meta-item">
+              <span class="dest-meta-value">$5.8M</span>
+              <span class="dest-meta-label">From</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dest-card reveal reveal-delay-4">
+        <div class="dest-card-bg"></div>
+        <div class="dest-card-glow"></div>
+        <div class="dest-card-content">
+          <div class="dest-card-orbit">Cislunar Space — 380,000km</div>
+          <h3>Lunar Passage</h3>
+          <p>The crown jewel. A 10-day voyage around the Moon, retracing the path of Apollo — with the comfort of the 21st century.</p>
+          <div class="dest-card-meta">
+            <div class="dest-meta-item">
+              <span class="dest-meta-value">10 Days</span>
+              <span class="dest-meta-label">Duration</span>
+            </div>
+            <div class="dest-meta-item">
+              <span class="dest-meta-value">$18M</span>
+              <span class="dest-meta-label">From</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fleet -->
+  <section class="fleet section-padding" id="fleet">
+    <div class="section-label reveal">03 — The Fleet</div>
+    <div class="section-title reveal reveal-delay-1">Engineered for<br>the extraordinary.</div>
+    <p class="section-desc reveal reveal-delay-2">The Nexus Constellation-class vessel. Purpose-built for private orbital voyages with uncompromising safety and elegance.</p>
+
+    <div class="fleet-showcase">
+      <div class="fleet-visual reveal">
+        <div class="fleet-ship">
+          <div class="fleet-scan-line"></div>
+          <div class="fleet-ship-wireframe">
+            <div class="ship-line ship-line-h1"></div>
+            <div class="ship-line ship-line-h2"></div>
+            <div class="ship-line ship-line-h3"></div>
+            <div class="ship-line ship-line-v1"></div>
+            <div class="ship-line ship-line-v2"></div>
+            <div class="ship-line ship-line-v3"></div>
+            <div class="ship-line ship-line-d1"></div>
+            <div class="ship-line ship-line-d2"></div>
+            <div class="ship-node ship-node-1"></div>
+            <div class="ship-node ship-node-2"></div>
+            <div class="ship-node ship-node-3"></div>
+            <div class="ship-node ship-node-4"></div>
+            <div class="ship-node ship-node-5"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fleet-specs">
+        <div class="fleet-spec reveal">
+          <div class="fleet-spec-icon">Nx</div>
+          <div>
+            <h4>Nexus Propulsion Array</h4>
+            <p>Hybrid ion-chemical propulsion system achieving 12km/s delta-V with 40% improved fuel efficiency over conventional systems.</p>
+          </div>
+        </div>
+        <div class="fleet-spec reveal reveal-delay-1">
+          <div class="fleet-spec-icon">Sh</div>
+          <div>
+            <h4>Adaptive Shield Matrix</h4>
+            <p>Multi-layer electromagnetic shielding with real-time radiation monitoring, ensuring passenger safety beyond the magnetosphere.</p>
+          </div>
+        </div>
+        <div class="fleet-spec reveal reveal-delay-2">
+          <div class="fleet-spec-icon">Ls</div>
+          <div>
+            <h4>Life Support Gen-IV</h4>
+            <p>Closed-loop environmental system with 98.7% air and water recycling, supporting extended missions up to 30 days.</p>
+          </div>
+        </div>
+        <div class="fleet-spec reveal reveal-delay-3">
+          <div class="fleet-spec-icon">Vp</div>
+          <div>
+            <h4>Panoramic Viewports</h4>
+            <p>Six 2.4m curved sapphire glass viewports with electrochromic dimming — the largest windows ever flown in orbit.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience Timeline -->
+  <section class="experience section-padding" id="experience">
+    <div class="section-label reveal">04 — The Experience</div>
+    <div class="section-title reveal reveal-delay-1">Your journey,<br>phase by phase.</div>
+    <p class="section-desc reveal reveal-delay-2">Every moment is meticulously choreographed — from your first briefing to the moment you touch down, forever changed.</p>
+
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-phase">Phase 01 — Preparation</div>
+        <div class="timeline-title">Selection & Training</div>
+        <div class="timeline-desc">A 6-month program at our Mojave facility. Medical screening, centrifuge training, zero-gravity simulation, and mission familiarization — tailored to your physical profile.</div>
+      </div>
+      <div class="timeline-item reveal reveal-delay-1">
+        <div class="timeline-phase">Phase 02 — Ascent</div>
+        <div class="timeline-title">Launch & Orbital Insertion</div>
+        <div class="timeline-desc">Depart from Nexus Spaceport at dawn. Experience 3.2G during ascent, then sudden weightlessness as you cross the Kármán line. First view of Earth's curvature within 8 minutes.</div>
+      </div>
+      <div class="timeline-item reveal reveal-delay-2">
+        <div class="timeline-phase">Phase 03 — Orbit</div>
+        <div class="timeline-title">The Voyage</div>
+        <div class="timeline-desc">Your orbital experience begins. Michelin-starred zero-gravity dining, guided stargazing sessions, Earth observation labs, and unstructured time in the panoramic lounge.</div>
+      </div>
+      <div class="timeline-item reveal reveal-delay-3">
+        <div class="timeline-phase">Phase 04 — Return</div>
+        <div class="timeline-title">Re-Entry & Homecoming</div>
+        <div class="timeline-desc">Controlled re-entry with plasma trail visible through rear cameras. Parachute-assisted ocean landing. Helicopter transfer to a private ceremony celebrating your achievement.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials section-padding">
+    <div class="section-label reveal">05 — Voices from Orbit</div>
+    <div class="section-title reveal reveal-delay-1">Those who have<br>seen it firsthand.</div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial reveal">
+        <div class="testimonial-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p class="testimonial-quote">"Nothing in my life — no summit, no ocean, no achievement — prepared me for the moment I saw Earth suspended in the void. I wept. I believe everyone should experience this."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">ER</div>
+          <div>
+            <div class="testimonial-name">Elena Rossi</div>
+            <div class="testimonial-role">Venture Capitalist — Aurora Circuit, 2026</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial reveal reveal-delay-1">
+        <div class="testimonial-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p class="testimonial-quote">"The training was rigorous but exhilarating. The crew made us feel like family. And the food — honestly, I didn't expect a Michelin experience at 400 kilometers altitude."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JT</div>
+          <div>
+            <div class="testimonial-name">James Thornton</div>
+            <div class="testimonial-role">Architect — Meridian Ascent, 2026</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial reveal reveal-delay-2">
+        <div class="testimonial-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p class="testimonial-quote">"I've photographed every continent, every ocean. But photographing Earth as a whole — one blue sphere against infinite black — that is the image I was born to capture."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AK</div>
+          <div>
+            <div class="testimonial-name">Aisha Kouri</div>
+            <div class="testimonial-role">Photographer — Lunar Passage, 2027</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial reveal reveal-delay-3">
+        <div class="testimonial-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <p class="testimonial-quote">"My 10-year-old daughter asked if I touched the stars. I told her no — but I finally understood how close they really are. Nexus didn't sell me a trip; they gave me a new worldview."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MH</div>
+          <div>
+            <div class="testimonial-name">Marcus Hale</div>
+            <div class="testimonial-role">CEO, Hale Industries — Aurora Circuit, 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-glow"></div>
+    <div class="cta-content reveal">
+      <div class="section-label" style="justify-content:center">06 — Join the Waitlist</div>
+      <h2>The cosmos<br>is <span>calling.</span></h2>
+      <p>Reserve your place among the first private orbital travelers. Limited to 24 passengers per year.</p>
+      <form class="cta-form" onsubmit="event.preventDefault()">
+        <input type="email" class="cta-input" placeholder="Enter your email">
+        <button type="submit" class="cta-submit">Join Waitlist</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">NEXUS ORBITAL</div>
+        <p>Pioneering private orbital experiences since 2024. Headquartered in Mojave, California, with launch facilities in three continents.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#">Destinations</a></li>
+          <li><a href="#">The Fleet</a></li>
+          <li><a href="#">Training Program</a></li>
+          <li><a href="#">Safety Record</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press Room</a></li>
+          <li><a href="#">Partners</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Licensing</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2027 NEXUS ORBITAL. All rights reserved.</div>
+      <div class="footer-socials">
+        <a href="#">X</a>
+        <a href="#">Li</a>
+        <a href="#">Ig</a>
+        <a href="#">Yt</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════
+       JAVASCRIPT
+       ═══════════════════════════════════════════ -->
+  <script>
+    // ── Starfield ──────────────────────────────
+    (function() {
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      let shootingStars = [];
+      let w, h;
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+
+      function initStars() {
+        stars = [];
+        const count = Math.floor((w * h) / 4000);
+        for (let i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 1.5 + 0.3,
+            alpha: Math.random() * 0.8 + 0.2,
+            twinkleSpeed: Math.random() * 0.02 + 0.005,
+            twinkleOffset: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+
+      function spawnShootingStar() {
+        shootingStars.push({
+          x: Math.random() * w * 0.8,
+          y: Math.random() * h * 0.3,
+          len: Math.random() * 80 + 40,
+          speed: Math.random() * 8 + 4,
+          angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+          alpha: 1,
+          decay: Math.random() * 0.015 + 0.008,
+        });
+      }
+
+      let time = 0;
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        time += 0.016;
+
+        // Stars
+        for (const s of stars) {
+          const flicker = Math.sin(time * s.twinkleSpeed * 60 + s.twinkleOffset) * 0.3 + 0.7;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(240, 236, 228, ${s.alpha * flicker})`;
+          ctx.fill();
+        }
+
+        // Shooting stars
+        for (let i = shootingStars.length - 1; i >= 0; i--) {
+          const ss = shootingStars[i];
+          ss.x += Math.cos(ss.angle) * ss.speed;
+          ss.y += Math.sin(ss.angle) * ss.speed;
+          ss.alpha -= ss.decay;
+
+          if (ss.alpha <= 0) {
+            shootingStars.splice(i, 1);
+            continue;
+          }
+
+          const tailX = ss.x - Math.cos(ss.angle) * ss.len;
+          const tailY = ss.y - Math.sin(ss.angle) * ss.len;
+
+          const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+          grad.addColorStop(0, `rgba(201, 168, 76, 0)`);
+          grad.addColorStop(1, `rgba(201, 168, 76, ${ss.alpha})`);
+
+          ctx.beginPath();
+          ctx.moveTo(tailX, tailY);
+          ctx.lineTo(ss.x, ss.y);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      initStars();
+      draw();
+
+      window.addEventListener('resize', () => { resize(); initStars(); });
+
+      // Random shooting stars
+      setInterval(() => {
+        if (Math.random() < 0.4) spawnShootingStar();
+      }, 2000);
+    })();
+
+    // ── Custom cursor ─────────────────────────
+    (function() {
+      const dot = document.getElementById('cursorDot');
+      const ring = document.getElementById('cursorRing');
+      let mouseX = -100, mouseY = -100;
+      let ringX = -100, ringY = -100;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        dot.style.left = mouseX - 4 + 'px';
+        dot.style.top = mouseY - 4 + 'px';
+      });
+
+      function animateRing() {
+        ringX += (mouseX - ringX) * 0.15;
+        ringY += (mouseY - ringY) * 0.15;
+        ring.style.left = ringX - 20 + 'px';
+        ring.style.top = ringY - 20 + 'px';
+        requestAnimationFrame(animateRing);
+      }
+      animateRing();
+
+      // Hover effect on interactive elements
+      const hoverTargets = document.querySelectorAll('a, button, .dest-card, .mission-card');
+      hoverTargets.forEach(el => {
+        el.addEventListener('mouseenter', () => ring.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hovering'));
+      });
+    })();
+
+    // ── Nav scroll ────────────────────────────
+    (function() {
+      const nav = document.getElementById('mainNav');
+      window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 50);
+      });
+    })();
+
+    // ── Scroll reveal ─────────────────────────
+    (function() {
+      const reveals = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+      reveals.forEach(el => observer.observe(el));
+    })();
+
+    // ── Counter animation ─────────────────────
+    (function() {
+      const counters = document.querySelectorAll('[data-target]');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const target = parseInt(entry.target.getAttribute('data-target'));
+            let current = 0;
+            const increment = target / 60;
+            const timer = setInterval(() => {
+              current += increment;
+              if (current >= target) {
+                entry.target.textContent = target;
+                clearInterval(timer);
+              } else {
+                entry.target.textContent = Math.floor(current);
+              }
+            }, 25);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      counters.forEach(el => observer.observe(el));
+    })();
+
+    // ── Smooth scroll for nav links ───────────
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // ── Parallax on mission planet ────────────
+    (function() {
+      const planet = document.querySelector('.mission-planet');
+      if (!planet) return;
+      window.addEventListener('scroll', () => {
+        const rect = planet.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
+        const viewCenter = window.innerHeight / 2;
+        const offset = (centerY - viewCenter) * 0.05;
+        planet.style.transform = `translateY(${-20 + offset}px)`;
+      });
+    })();
+  </script>
+</body>
+</html>
