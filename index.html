@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NEXUS ORBITAL — Private Orbital Experiences</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050507'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23c9a84c' stroke-width='0.7' opacity='0.3'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='800' font-size='18' fill='%23c9a84c'%3EN%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
@@ -1392,6 +1393,8 @@
       .destinations-grid { grid-template-columns: 1fr; }
       .testimonials-grid { grid-template-columns: 1fr; }
       .hero-actions { flex-direction: column; }
+      .hero h1 { font-size: clamp(2.5rem, 9vw, 5rem); }
+      .hero h1 .line-2 { font-size: 0.85em; }
       .hero-orbital-ring { width: 400px; height: 400px; }
       .hero-orbital-ring-2 { width: 300px; height: 300px; }
       .cta-form { flex-direction: column; }
@@ -1408,7 +1411,8 @@
         font-size: 0.5rem;
         padding: 0.45rem 0.8rem;
       }
-      .hero h1 { font-size: 2.8rem; }
+      .hero h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
+      .hero h1 .line-2 { font-size: 0.8em; }
       .stat-number { font-size: 1.8rem; }
     }
   </style>
@@ -1458,7 +1462,6 @@
     <p class="hero-sub">Private orbital experiences for those who seek the extraordinary. The final frontier, reimagined as the ultimate luxury.</p>
     <div class="hero-actions">
       <button class="btn-primary" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Book Your Journey</button>
-      <button class="btn-ghost">Watch Film</button>
     </div>
     <div class="hero-scroll">
       <span>Scroll</span>
